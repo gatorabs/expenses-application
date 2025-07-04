@@ -44,45 +44,79 @@ def before():
         repo.save_config(cfg)
 
 
+from datetime import date
+
 @app.route('/')
 def index():
-    repo = get_repo()
-    cfg = repo.load_config()
-    fixed = repo.load_fixed()
+    repo         = get_repo()
+    cfg          = repo.load_config()
+    fixed        = repo.load_fixed()
     installments = repo.load_installments()
-    history = repo.load_history()
-    service = ExpenseService(repo)
+    history      = repo.load_history() or []
+
+    today = date.today()
+    for inst in installments:
+        diff_months = (today.year - inst.start_month.year) * 12 + (today.month - inst.start_month.month)
+        inst.current_parcel = max(1, min(inst.n_parcels, diff_months + 1))
+
+    service   = ExpenseService(repo)
     remaining = service.calculate_remaining(cfg)
+
     return render_template(
         'index.html',
         budget=cfg,
         remaining=remaining,
         fixed=fixed,
         installments=installments,
-        history = history
+        history=history
     )
+
 
 @app.route('/fixed/toggle/<int:id>', methods=['POST'])
 def toggle_fixed(id):
     repo = get_repo()
     fixed_list = repo.load_fixed()
+
+    # 1) Encontra o item clicado
+    target = next((fe for fe in fixed_list if fe.id == id), None)
+    if not target:
+        return ('', 404)
+
+    # 2) Decide o novo estado e pega o affiliate
+    new_paid = not target.paid
+    aff = target.affiliate
+
+    # 3) Aplica a todos com o mesmo affiliate (e no próprio também)
     for fe in fixed_list:
-        if fe.id == id:
-            fe.paid = not fe.paid
-            break
+        if fe.affiliate and fe.affiliate == aff:
+            fe.paid = new_paid
+
     repo.save_fixed(fixed_list)
     return ('', 204)
+
 
 @app.route('/installments/toggle/<int:id>', methods=['POST'])
 def toggle_installment(id):
     repo = get_repo()
     inst_list = repo.load_installments()
+
+    # 1) Encontra o item clicado
+    target = next((inst for inst in inst_list if inst.id == id), None)
+    if not target:
+        return ('', 404)
+
+    # 2) Novo estado e affiliate
+    new_paid = not target.paid
+    aff = target.affiliate
+
+    # 3) Marca/desmarca todos do mesmo affiliate
     for inst in inst_list:
-        if inst.id == id:
-            inst.paid = not inst.paid
-            break
+        if inst.affiliate and inst.affiliate == aff:
+            inst.paid = new_paid
+
     repo.save_installments(inst_list)
     return ('', 204)
+
 
 @app.route('/fixed', methods=['POST'])
 def add_fixed():
