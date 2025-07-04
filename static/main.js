@@ -84,4 +84,13 @@ document.addEventListener('DOMContentLoaded', () => {
       instNameInput.focus();
     });
   });
+
+  const editLimitBtn = document.getElementById('edit-limit-btn');
+  if (editLimitBtn) {
+    const configModalEl = document.getElementById('configModal');
+    const bsConfigModal = new bootstrap.Modal(configModalEl);
+    editLimitBtn.addEventListener('click', () => {
+      bsConfigModal.show();
+    });
+  }
 });
