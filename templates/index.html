@@ -13,6 +13,13 @@
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">Controle de Gastos</a>
+      <!-- Botão de Histórico -->
+      <button class="btn btn-outline-light ms-auto"
+              type="button"
+              data-bs-toggle="modal"
+              data-bs-target="#historyModal">
+        Histórico
+      </button>
     </div>
   </nav>
 
@@ -196,14 +203,15 @@
 
     </div>
   </div>
-  <!-- Histórico de Parcelamentos -->
-  <div class="row mb-5">
-    <div class="col-12">
-      <div class="card shadow-sm">
-        <div class="card-header bg-dark text-white">
-          <h5 class="mb-0">Histórico de Parcelamentos (Pagos)</h5>
+   <!-- Modal de Histórico -->
+  <div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="historyModalLabel">Histórico de Parcelamentos (Pagos)</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
         </div>
-        <div class="card-body">
+        <div class="modal-body">
           <div class="table-responsive">
             <table class="table table-striped table-hover align-middle">
               <thead class="table-light">
@@ -237,9 +245,13 @@
             </table>
           </div>
         </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
       </div>
     </div>
   </div>
+
   <!-- Bootstrap JS + seu main.js -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{{ url_for('static', filename='main.js') }}"></script>
